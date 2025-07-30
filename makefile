@@ -19,8 +19,10 @@ all: release
 
 debug: CFLAGS += -DDEBUG -O0 -ggdb3
 debug: libcubiomes
+debug: build
 release: CFLAGS += -O3
 release: libcubiomes
+release: build
 native: CFLAGS += -O3 -march=native -ffast-math
 native: libcubiomes
 
@@ -30,7 +32,7 @@ release: CFLAGS += -fPIC
 endif
 
 
-libcubiomes: noise.o biomes.o layers.o biomenoise.o generator.o finders.o util.o quadbase.o
+libcubiomes: biomes.o noise.o layers.o biomenoise.o generator.o finders.o util.o quadbase.o md5.o
 	$(AR) $(ARFLAGS) libcubiomes.a $^
 
 finders.o: finders.c finders.h
@@ -40,9 +42,6 @@ generator.o: generator.c generator.h
 	$(CC) -c $(CFLAGS) $<
 
 biomenoise.o: biomenoise.c
-	$(CC) -c $(CFLAGS) $<
-
-biometree.o: biometree.c
 	$(CC) -c $(CFLAGS) $<
 
 layers.o: layers.c layers.h
@@ -60,6 +59,14 @@ util.o: util.c util.h
 quadbase.o: quadbase.c quadbase.h
 	$(CC) -c $(CFLAGS) $<
 
+md5.o: md5.c md5.h
+	$(CC) -c $(CFLAGS) $<
+
+main.o: main.c
+	$(CC) -c $(CFLAGS) $<
+
 clean:
 	$(RM) *.o *.a
 
+build: main.o libcubiomes.a
+	$(CC) $(CFLAGS) -o "build.exe" $^ $(LDFLAGS)
